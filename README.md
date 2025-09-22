@@ -26,6 +26,7 @@ Additional circuit-level validation was performed using **Multisim**.
 
 
 ## 📂 Repository Structure
+
 ```
 ├── docs/ # Documentation & reports (PDFs, diagrams)
 ├── src/ # Verilog source
