@@ -117,19 +117,14 @@ Worst stopband attenuation ≈ 41 dB
 ### Challenges
 
 Coefficient quantization increased ripple versus floating-point design
-
 Verilog shift register required blocking assignments for correct MAC operations
-
 Output alignment required pipeline flushing and robust comparison scripts
 
 ### Future Work
 
 Optimize implementation for FPGA (distributed arithmetic / FFT-based methods)
-
 Add pipeline stages for higher throughput
-
 Support runtime coefficient reload (adaptive filtering)
-
 Extend framework for other FIR types (low-pass, high-pass, multiband)
 
 ## 📜 License
