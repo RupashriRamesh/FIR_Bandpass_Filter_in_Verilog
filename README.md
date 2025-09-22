@@ -24,9 +24,9 @@ Additional circuit-level validation was performed using **Multisim**.
 - Plotting utilities: `plot_compare.py`, `time_and_freq_compare.py`, `adc_vs_fir_time.py`  
 - Multisim input generation and validation (normalized to ±1 V, exported as `in_samples.txt`)  
 
-```
 
 ## 📂 Repository Structure
+```
 ├── docs/ # Documentation & reports (PDFs, diagrams)
 ├── src/ # Verilog source
 │ ├── FIR_FILTER.v
