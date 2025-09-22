@@ -1,0 +1,74 @@
+// FIR_FILTER.v
+// Plain Verilog-2001 FIR (direct convolution) matching Python behaviour (Q1.QBITS coeffs).
+// Coeffs are loaded by TB into dut.coeffs via $readmemh.
+
+`timescale 1ns/1ps
+
+module FIR_FILTER #(
+    parameter integer NTAPS = 385,
+    parameter integer QBITS = 23
+)(
+    input  wire               clk,
+    input  wire               rst,
+    input  wire signed [31:0] sample_in,
+    input  wire               sample_valid,
+    output reg  signed [31:0] sample_out,
+    output reg                out_valid
+);
+
+    // coefficient memory (loaded by TB)
+    reg signed [31:0] coeffs [0:NTAPS-1];
+
+    // delay line
+    reg signed [31:0] shift_reg [0:NTAPS-1];
+
+    integer i;
+    reg signed [63:0] acc;
+    reg signed [63:0] acc_rounded;
+    reg signed [31:0] out_tmp;
+
+    // synchronous process: shift, MAC, round, clip, output
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            for (i=0; i<NTAPS; i=i+1) shift_reg[i] <= 32'sd0;
+            sample_out <= 32'sd0;
+            out_valid  <= 1'b0;
+        end else begin
+            if (sample_valid) begin
+                // shift delay line
+                for (i = NTAPS-1; i > 0; i = i - 1)
+                    shift_reg[i] <= shift_reg[i-1];
+                shift_reg[0] <= sample_in;
+
+                // multiply-accumulate (use blocking for local acc)
+                acc = 64'sd0;
+                for (i = 0; i < NTAPS; i = i + 1) begin
+                    acc = acc + ($signed(shift_reg[i]) * $signed(coeffs[i]));
+                end
+
+                // rounding: add 1<<(QBITS-1)
+                if (QBITS > 0)
+                    acc_rounded = acc + (64'sd1 << (QBITS-1));
+                else
+                    acc_rounded = acc;
+
+                // arithmetic right shift
+                acc_rounded = acc_rounded >>> QBITS;
+
+                // clip to 32-bit signed
+                if (acc_rounded > 64'sd2147483647)
+                    out_tmp = 32'sd2147483647;
+                else if (acc_rounded < -64'sd2147483648)
+                    out_tmp = -32'sd2147483648;
+                else
+                    out_tmp = acc_rounded[31:0];
+
+                sample_out <= out_tmp;
+                out_valid  <= 1'b1;
+            end else begin
+                out_valid <= 1'b0;
+            end
+        end
+    end
+
+endmodule

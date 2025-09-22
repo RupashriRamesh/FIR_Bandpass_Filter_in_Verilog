@@ -1,0 +1,114 @@
+// FIR_TB.v
+// Testbench for FIR_FILTER.v ? ModelSim-friendly (Verilog-2001).
+`timescale 1ns/1ps
+
+module FIR_TB;
+
+  parameter integer NTAPS = 385;
+  parameter integer QBITS = 23;
+
+  // filenames (edit if needed)
+  reg [8*64:1] coeff_file = "fir_61_coeffs_hex.txt";
+  reg [8*64:1]  in_file    = "in_samples.txt";
+  reg [8*64:1]  out_file   = "verilog_ref_file.txt";
+  reg [8*64:1]  dbg_file   = "verilog_dbg.txt";
+
+  // DUT signals
+  reg clk;
+  reg rst;
+  reg signed [31:0] sample_in;
+  reg sample_valid;
+  wire signed [31:0] sample_out;
+  wire out_valid;
+
+  // instantiate DUT
+  FIR_FILTER #(.NTAPS(NTAPS), .QBITS(QBITS)) dut (
+      .clk(clk),
+      .rst(rst),
+      .sample_in(sample_in),
+      .sample_valid(sample_valid),
+      .sample_out(sample_out),
+      .out_valid(out_valid)
+  );
+
+  // file IO handles
+  integer fid_in, fid_out, fid_dbg;
+  integer rc;
+  integer idx;
+  integer i;
+  integer cnt_nonzero;
+
+  // clock generation: 10 ns period (100 MHz)
+  initial begin
+    clk = 1'b0;
+    forever #5 clk = ~clk;
+  end
+
+  initial begin
+    $display("tb_fir_process: starting.");
+
+    // reset pulse
+    rst = 1'b1;
+    sample_in = 32'sd0;
+    sample_valid = 1'b0;
+    #20;
+    rst = 1'b0;
+
+    // load coefficients into dut.coeffs
+    $display("Loading coeffs from %0s into dut.coeffs ...", coeff_file);
+    $readmemh(coeff_file, dut.coeffs);
+
+    // quick sanity: print first 20 and count non-zero
+    cnt_nonzero = 0;
+    for (i=0; i<NTAPS; i=i+1) if (dut.coeffs[i] !== 32'sd0) cnt_nonzero = cnt_nonzero + 1;
+    $display("Loaded %0d non-zero coeff entries.", cnt_nonzero);
+    for (i=0; i<20; i=i+1) $display("coeff[%0d] = %h", i, dut.coeffs[i]);
+
+    // open IO files
+    fid_in  = $fopen(in_file, "r");
+    if (fid_in == 0) begin $display("ERROR: Could not open input file %s", in_file); $finish; end
+    fid_out = $fopen(out_file, "w");
+    if (fid_out == 0) begin $display("ERROR: Could not open output file %s", out_file); $finish; end
+    fid_dbg = $fopen(dbg_file, "w");
+    if (fid_dbg == 0) begin $display("ERROR: Could not open dbg file %s", dbg_file); $finish; end
+
+    $fdisplay(fid_dbg, "# idx sample_in acc_before_round acc_after_round sample_out");
+
+    idx = 0;
+
+    // drive samples one-per-clock; IMPORTANT: set sample_in and sample_valid BEFORE posedge
+    while (!$feof(fid_in)) begin
+      rc = $fscanf(fid_in, "%d\n", sample_in);
+      if (rc != 1) sample_in = 32'sd0;
+
+      // print first inputs to console for debug (compare with Python)
+      if (idx < 32) $display("TB INPUT idx=%0d sample_in=%0d rc=%0d", idx, sample_in, rc);
+
+      // present inputs to DUT and assert sample_valid BEFORE the clock edge
+      sample_valid = 1'b1;
+      @(posedge clk);        // DUT samples sample_in and sample_valid at this edge
+      sample_valid = 1'b0;
+
+      // now sample_out is available; only write when idx >= NTAPS-1 (align with Python conv_trim)
+      #1;
+      if (idx >= (NTAPS - 1)) begin
+        // write output aligned to python y[n] where n = idx - (NTAPS-1)
+        $fdisplay(fid_out, "%0d", sample_out);
+        // debug: index relative to first python output
+        // Note: dut.acc and dut.acc_rounded are hierarchical references to DUT internals (available in sim)
+        $fdisplay(fid_dbg, "%0d %0d %0d %0d %0d", idx-(NTAPS-1), sample_in, dut.acc, dut.acc_rounded, sample_out);
+      end
+
+      idx = idx + 1;
+    end // while
+
+    // close files after loop
+    $fclose(fid_in);
+    $fclose(fid_out);
+    $fclose(fid_dbg);
+
+    $display("tb_fir_process: finished. processed %0d samples.", idx);
+    $stop;
+  end
+
+endmodule

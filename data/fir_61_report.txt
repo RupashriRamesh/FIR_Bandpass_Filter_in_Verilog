@@ -1,0 +1,8 @@
+NTAPS=385
+QT=23
+Floating_pre_center_db=-0.498487
+Measured_center_db=-0.068479
+pass_min=-0.078604
+pass_max=0.909481
+ripple=0.988085
+worst_stop=41.000926
