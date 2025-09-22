@@ -24,7 +24,7 @@ Additional circuit-level validation was performed using **Multisim**.
 - Plotting utilities: `plot_compare.py`, `time_and_freq_compare.py`, `adc_vs_fir_time.py`  
 - Multisim input generation and validation (normalized to ±1 V, exported as `in_samples.txt`)  
 
----
+```
 
 ## 📂 Repository Structure
 ├── docs/ # Documentation & reports (PDFs, diagrams)
@@ -53,7 +53,7 @@ Additional circuit-level validation was performed using **Multisim**.
 ├── README.md
 └── LICENSE
 
----
+```
 
 ## ⚙️ Prerequisites
 - Python **3.8+**  
@@ -64,13 +64,15 @@ Additional circuit-level validation was performed using **Multisim**.
 Install Python packages:
 ```bash
 pip install numpy scipy matplotlib
-
+```
 🚀 How to Run
 1. Design the FIR filter (Python)
 
 Generates quantized coefficients, golden reference output, debug files, and a report
+```
 vlog ../src/FIR_FILTER.v ../src/FIR_TB.v
 vsim -c work.FIR_TB -do "run -all; quit"
+```
 Outputs:
 
 verilog_ref_file.txt – Verilog output
@@ -78,7 +80,9 @@ verilog_ref_file.txt – Verilog output
 verilog_dbg.txt – debug trace
 
 3. Compare Python vs Verilog outputs
+```
 python ver_py_check_fixed.py --py fir_61_pyref_file.txt --ver verilog_ref_file.txt
+```
 
 If matched, the script prints:
 No mismatches found. Files match for all compared samples.
