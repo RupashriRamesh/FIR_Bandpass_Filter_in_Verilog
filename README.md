@@ -114,7 +114,7 @@ Worst stopband attenuation ≈ 41 dB
 
 ## ⚡ Challenges & Future Improvements
 
-# Challenges
+### Challenges
 
 Coefficient quantization increased ripple versus floating-point design
 
@@ -122,7 +122,7 @@ Verilog shift register required blocking assignments for correct MAC operations
 
 Output alignment required pipeline flushing and robust comparison scripts
 
-# Future Work
+### Future Work
 
 Optimize implementation for FPGA (distributed arithmetic / FFT-based methods)
 
@@ -132,10 +132,10 @@ Support runtime coefficient reload (adaptive filtering)
 
 Extend framework for other FIR types (low-pass, high-pass, multiband)
 
-# 📜 License
+## 📜 License
 
 This project is licensed under the MIT License. See LICENSE for details.
 
-# 👩‍💻 Author
+## 👩‍💻 Author
 
 Rupashri R
