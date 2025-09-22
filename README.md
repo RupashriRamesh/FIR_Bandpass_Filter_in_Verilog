@@ -43,6 +43,7 @@ Additional circuit-level validation was performed using **Multisim**.
 │ ├── in_samples.txt
 │ ├── fir_61_pyref_file.txt
 │ ├── fir_61_report.txt
+| ├── voltage_values.txt/ # voltage values from (adc_in) RF frontend in Multisim. 
 │ └── verilog_ref_file.txt
 ├── results/ # Generated PNGs and reports
 │ ├── time_overlay.png
