@@ -65,7 +65,7 @@ Install Python packages:
 ```bash
 pip install numpy scipy matplotlib
 ```
-🚀 How to Run
+## 🚀 How to Run
 1. Design the FIR filter (Python)
 
 Generates quantized coefficients, golden reference output, debug files, and a report
@@ -73,10 +73,9 @@ Generates quantized coefficients, golden reference output, debug files, and a re
 vlog ../src/FIR_FILTER.v ../src/FIR_TB.v
 vsim -c work.FIR_TB -do "run -all; quit"
 ```
-Outputs:
+2. Outputs
 
 verilog_ref_file.txt – Verilog output
-
 verilog_dbg.txt – debug trace
 
 3. Compare Python vs Verilog outputs
@@ -91,12 +90,12 @@ python time_and_freq_compare.py
 python adc_vs_fir_time.py
 All plots are saved in the results/ folder.
 
-🔎 Notes on Input Preparation / ADC Scaling
+## 🔎 Notes on Input Preparation / ADC Scaling
 
 Multisim outputs were within ±1 V.
 They were normalized under an ideal ADC assumption (Vref = ±1 V) and quantized to integers for in_samples.txt, ensuring consistency with fixed-point Python/Verilog workflows.
 
-✅ Example Results
+## ✅ Example Results
 
 From fir_61_report.txt:
 
@@ -112,9 +111,9 @@ Passband ripple ≈ 0.99 dB
 
 Worst stopband attenuation ≈ 41 dB
 
-⚡ Challenges & Future Improvements
+## ⚡ Challenges & Future Improvements
 
-Challenges
+# Challenges
 
 Coefficient quantization increased ripple versus floating-point design
 
@@ -122,7 +121,7 @@ Verilog shift register required blocking assignments for correct MAC operations
 
 Output alignment required pipeline flushing and robust comparison scripts
 
-Future Work
+# Future Work
 
 Optimize implementation for FPGA (distributed arithmetic / FFT-based methods)
 
@@ -132,10 +131,10 @@ Support runtime coefficient reload (adaptive filtering)
 
 Extend framework for other FIR types (low-pass, high-pass, multiband)
 
-📜 License
+# 📜 License
 
 This project is licensed under the MIT License. See LICENSE for details.
 
-👩‍💻 Author
+# 👩‍💻 Author
 
 Rupashri R
